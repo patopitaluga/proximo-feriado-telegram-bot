@@ -32,7 +32,10 @@ module.exports.proxferiadobot = async(_event) => {
   const body = JSON.parse(_event.body);
 
   if (body.message.text === '/start') {
-    await sendToUser(body.message.chat.id, 'Hola, soy el bot que dice el próximo feriado. Cuando digas cualquier texto te voy a contestar con información sobre el próximo feriado en Argentina para el año 2021');
+    await sendToUser(body.message.chat.id, `Hola, soy el bot que dice el próximo feriado. Cuando digas cualquier texto te voy a contestar con información sobre el próximo feriado en Argentina para el año 2021
+
+También me podés escribir una fecha en cualquier formato y te puedo decir el feriado siguiente a esa fecha.
+`);
     return { statusCode: 200 };
   }
   const responseText = proxferiado(body.message.text);

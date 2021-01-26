@@ -19,3 +19,21 @@ If you haven’t retrieved keys before, go to https://console.aws.amazon.com/con
 ```
 serverless deploy
 ```
+
+## Terminal client
+
+### For the first time
+```
+npm install
+```
+
+### Every time
+To get the next holiday for current day
+```
+node proxferiado
+```
+
+To get the next holiday for specific day
+```
+node proxferiado 2021-02-05
+```
