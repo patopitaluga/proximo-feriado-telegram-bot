@@ -1,10 +1,6 @@
 require('dotenv').config();
 const axios = require('axios');
-const moment = require('moment-timezone');
-const feriados = require('./feriados');
-
-const meses = ['', 'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
-const weekDays = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
+const proxferiado = require('./proxferiado');
 
 /**
  *
@@ -39,27 +35,11 @@ module.exports.proxferiadobot = async(_event) => {
     await sendToUser(body.message.chat.id, 'Hola, soy el bot que dice el próximo feriado. Cuando digas cualquier texto te voy a contestar con información sobre el próximo feriado en Argentina para el año 2021');
     return { statusCode: 200 };
   }
+  const responseText = proxferiado(body.message.text);
 
-  const now = moment();
-  const nowInArgentina = now.tz('America/Argentina/Buenos_Aires');
-  let responseText = '';
-  for (i = 0; i < feriados.length; i++) {
-    const thisFeriado = feriados[i];
-    const thisFeriadoMmnt = moment(thisFeriado.date);
-    if (thisFeriadoMmnt.isAfter(nowInArgentina)) {
-      responseText = 'El próximo feriado es el ' + weekDays[thisFeriadoMmnt.day()] + ' ' + thisFeriadoMmnt.format('D') + ' de ' + meses[Number(thisFeriadoMmnt.format('M'))] +' "' + thisFeriado.name + '".';
-      if (thisFeriado.type)
-        responseText += ' Es de tipo ' + thisFeriado.type + '.';
-      if (thisFeriado.movedFrom)
-        responseText += ' Trasladado del día ' + thisFeriado.movedFrom + '.';
-      if (thisFeriado.nextTo)
-        responseText += ' Puede conformar un grupo de ' + thisFeriado.nextTo + '.';
-
-      // console.log(responseText);
-      break;
-    }
-  };
-
-  await sendToUser(body.message.chat.id, responseText);
+  if (body.message.chat)
+    await sendToUser(body.message.chat.id, responseText);
+  else
+    console.log(responseText); // testing or using cli
   return { statusCode: 200 };
 };
