@@ -1,0 +1,13 @@
+{
+  "name": "proxferiadobot",
+  "version": "1.0.0",
+  "description": "",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.21.1",
+    "dotenv": "^8.2.0",
+    "moment-timezone": "^0.5.32"
+  }
+}
