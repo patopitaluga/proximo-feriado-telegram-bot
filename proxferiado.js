@@ -51,19 +51,20 @@ const proxferiado = (_args) => {
     const thisFeriadoDate = dayjs(thisFeriado.date); // TODO: this is the date in UTC 0 not in Argentina
     if (thisFeriadoDate.isAfter(theDateInArgentina)) {
       const txHowManyDaysTo = thisFeriadoDate.diff(theDate, 'days');
-      responseText = `El ${ txNextToWhichDate } **${ txHowManyDaysTo } día${ ((txHowManyDaysTo > 1) ? 's' : '') }**${ txLater }. El `;
-      responseText += '**' +
+      responseText = `El ${ txNextToWhichDate } *${ txHowManyDaysTo } día${ ((txHowManyDaysTo > 1) ? 's' : '') }*${ txLater }. El `;
+      responseText += '*' +
         weekDaysLocale[thisFeriadoDate.day()] + ' ' + thisFeriadoDate.format('D') +
-        ' de ' + monthsLocale[Number(thisFeriadoDate.format('M'))] +'** "' + thisFeriado.name + '".';
+        ' de ' + monthsLocale[Number(thisFeriadoDate.format('M'))] +'* "' + thisFeriado.name + '".';
       if (thisFeriado.type)
         responseText += ' Es de tipo ' + thisFeriado.type + '.';
       if (thisFeriado.movedFrom)
         responseText += ' Trasladado del día ' + thisFeriado.movedFrom + '.';
       if (thisFeriado.nextTo)
         responseText += ' Puede conformar un grupo de ' + thisFeriado.nextTo + '.';
+
       responseText += ' [Agregar a Google Calendar](https://www.google.com/calendar/render?action=TEMPLATE&text=Feriado%20' + thisFeriado.name.replace(/ /g, '%20') +
-        '&dates=' + thisFeriadoDate.format('YYYYMMDD') + 'T0000' + '925Z%2F' +
-        thisFeriadoDate.format('YYYYMMDD') + 'T2359' + '925Z)';
+        '&dates=' + thisFeriadoDate.format('YYYYMMDD') + '%2F' +
+        thisFeriadoDate.format('YYYYMMDD');
 
       // console.log(responseText);
       return responseText;
