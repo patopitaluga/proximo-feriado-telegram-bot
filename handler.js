@@ -15,6 +15,7 @@ const sendToUser = async(_chatId, _text) => {
     data: {
       chat_id: _chatId,
       text: _text,
+      parse_mode: 'Markdown',
     }
   })
     .catch((_err) => {

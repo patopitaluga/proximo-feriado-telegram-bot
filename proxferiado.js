@@ -61,12 +61,9 @@ const proxferiado = (_args) => {
         responseText += ' Trasladado del día ' + thisFeriado.movedFrom + '.';
       if (thisFeriado.nextTo)
         responseText += ' Puede conformar un grupo de ' + thisFeriado.nextTo + '.';
-      responseText += ' <a href="https://www.google.com/calendar/render?action=TEMPLATE&text=Feriado%20' + thisFeriado.name.replace(/ /g, '%20') +
+      responseText += ' [Agregar a Google Calendar](https://www.google.com/calendar/render?action=TEMPLATE&text=Feriado%20' + thisFeriado.name.replace(/ /g, '%20') +
         '&dates=' + thisFeriadoDate.format('YYYYMMDD') + 'T0000' + '925Z%2F' +
-        thisFeriadoDate.format('YYYYMMDD') + 'T2359' + '925Z' +
-        '">Agregar a Google Calendar</a>';
-
-// https://www.google.com/calendar/render?action=TEMPLATE&text=asd&dates=20210207T182600Z%2F20210208T192700Z
+        thisFeriadoDate.format('YYYYMMDD') + 'T2359' + '925Z)';
 
       // console.log(responseText);
       return responseText;
