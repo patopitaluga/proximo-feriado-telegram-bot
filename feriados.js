@@ -27,11 +27,18 @@ module.exports = [
     weekday: 'miércoles',
   },
   {
+    date: '2021-04-01',
+    name: 'Jueves Santo',
+    type: 'no laborable',
+    weekday: 'jueves',
+    nextTo: '4 días no laborables, junto con el viernes 2, el sábado 3, y el domingo 4',
+  },
+  {
     date: '2021-04-02',
     name: 'Día del Veterano y de los Caídos en la Guerra de Malvinas. Coincide con el Viernes Santo',
     type: 'inamovible',
     weekday: 'viernes',
-    nextTo: '3 días no laborables, junto con el sábado 3, y el domingo 4',
+    nextTo: '4 días no laborables, junto con el jueves 1, el sábado 3, y el domingo 4',
   },
   {
     date: '2021-05-01',
