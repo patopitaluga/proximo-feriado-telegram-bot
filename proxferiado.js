@@ -19,7 +19,7 @@ const proxferiado = (_args) => {
   let txNextToWhichDate = 'próximo feriado es en';
   let txLater = '';
   let theDate = dayjs();
-  if (_args &&_args.length === 10) {
+  if (_args && _args.length === 10) {
     if ( // YYYY-MM-DD || YYYY/MM/DD
       !isNaN(_args.substr(0, 4)) &&
       (_args.substr(4, 1) === '-' || _args.substr(4, 1) === '/') &&
@@ -43,6 +43,18 @@ const proxferiado = (_args) => {
       theDate = dayjs(_args.substr(6, 4) + '-' + _args.substr(3, 2) + '-' + _args.substr(0, 2));
     }
   }
+  if (_args) {
+    const dateParts = _args.split(' ');
+    if (!isNaN(dateParts[0]) && dateParts[1] === 'de') {
+      for (let m = 1; m <= 12; m++) {
+        if (dateParts[2] === monthsLocale[m]) {
+          txNextToWhichDate = 'feriado más próximo al ' + dateParts[0] + ' de ' + monthsLocale[m] + ' es'
+          txLater = ' después';
+          theDate = dayjs('2021-' + ('0' + m).slice(-2) + '-' + ('0' + dateParts[0]).slice(-2));
+        }
+      }
+    }
+  }
 
   const theDateInArgentina = theDate.tz('America/Argentina/Buenos_Aires'); // get the date inside the function to make it current every time.
   let responseText = '';
@@ -62,9 +74,9 @@ const proxferiado = (_args) => {
       if (thisFeriado.nextTo)
         responseText += ' Puede conformar un grupo de ' + thisFeriado.nextTo + '.';
 
-      responseText += ' [Agregar a Google Calendar](https://www.google.com/calendar/render?action=TEMPLATE&text=Feriado%20' + thisFeriado.name.replace(/ /g, '%20') +
+      responseText += ' [Agregar a Google Calendar](https://www.google.com/calendar/render?action=TEMPLATE&text=' + thisFeriado.name.replace(/ /g, '%20') +
         '&dates=' + thisFeriadoDate.format('YYYYMMDD') + '%2F' +
-        thisFeriadoDate.format('YYYYMMDD');
+        thisFeriadoDate.add(1, 'days').format('YYYYMMDD');
 
       // console.log(responseText);
       return responseText;
@@ -80,6 +92,12 @@ if (
   path.parse(process.argv[0]).name === 'node' &&
   path.parse(process.argv[1]).name === 'proxferiado'
 ) {
-  const responseText = proxferiado(process.argv[2]);
+  let argsText = '';
+  let space = '';
+  for (let c = 2; c < process.argv.length; c++) {
+    argsText += space + process.argv[c];
+    space = ' ';
+  }
+  const responseText = proxferiado(argsText);
   console.log(responseText);
 }
