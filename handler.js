@@ -77,7 +77,7 @@ También me podés escribir una fecha en cualquier formato y te puedo decir el f
   if (body.message.text === 'febrero') {
     sendImage(body.message.chat.id, 'Este es el calendario del mes de ferbrero', 'febrero.png');
     console.log('Image requested');
-    console.log(_response.data);
+    console.log(_event);
     return { statusCode: 200 };
   }
 
