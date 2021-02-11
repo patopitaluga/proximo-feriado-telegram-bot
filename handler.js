@@ -5,6 +5,8 @@ const fs = require('fs');
 const proxferiado = require('./proxferiado');
 const path = require('path');
 
+const monthsLocale = ['', 'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+
 /**
  *
  *
@@ -22,8 +24,7 @@ const sendMessage = async(_chatId, _text) => {
     }
   })
     .catch((_err) => {
-      console.log(_err.response.status);
-      console.log(_err.response.data);
+      console.log('Error sending message ' + _err.response.status + ' ' + _err.response.data);
     });
 };
 
@@ -37,24 +38,20 @@ const sendMessage = async(_chatId, _text) => {
 const sendImage = async(_chatId, _text, _filename) => {
   const theFormData = new FormData();
   theFormData.append('chat_id', _chatId);
-  theFormData.append('data', fs.createReadStream(path.resolve(__dirname, './images/' + _filename)));
+  theFormData.append('photo', fs.createReadStream(path.resolve(__dirname, './images/' + _filename)));
+  theFormData.append('caption', _text);
 
-  console.log('Uploading image');
   return axios({
     method: 'post',
-    url: `https://api.telegram.org/bot${ process.env.TELEGRAM_TOKEN }/sendImage`,
+    url: `https://api.telegram.org/bot${ process.env.TELEGRAM_TOKEN }/sendPhoto?chat_id=${ _chatId }`,
     data: theFormData,
     headers: {
       'Content-Type': 'multipart/form-data; boundary=' + theFormData._boundary,
       'file-name': _filename,
     },
   })
-    .then((_response) => {
-      console.log('Image uploaded');
-    })
     .catch((_err) => {
-      console.log('Error uploading image');
-      console.log(_err);
+      console.log('Error uploading image ' + _err.response.status + ' ' + _err.response.data);
     });
 };
 
@@ -74,12 +71,12 @@ También me podés escribir una fecha en cualquier formato y te puedo decir el f
     return { statusCode: 200 };
   }
 
-  if (body.message.text === 'febrero') {
-    sendImage(body.message.chat.id, 'Este es el calendario del mes de ferbrero', 'febrero.png');
-    console.log('Image requested');
-    console.log(_event);
-    return { statusCode: 200 };
-  }
+  monthsLocale.forEach((_eachMonth) => {
+    if (body.message.text.toLowerCase() === _eachMonth) {
+      sendImage(body.message.chat.id, 'Este es el calendario de feriados del mes de ' + _eachMonth + ' de 2021', _eachMonth + '.png');
+      return { statusCode: 200 };
+    }
+  });
 
   if (body.message.chat) {
     const responseText = proxferiado(body.message.text);
