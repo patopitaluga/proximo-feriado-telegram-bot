@@ -52,7 +52,7 @@ const sendImage = async(_chatId, _text, _filename) => {
     .then((_response) => {
       console.log('Image uploaded');
       console.log(_response.data);
-    });
+    })
     .catch((_err) => {
       console.log('Error uploading image');
       console.log(_err);
