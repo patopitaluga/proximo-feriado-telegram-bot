@@ -69,7 +69,7 @@ También me podés escribir una fecha en cualquier formato y te puedo decir el f
     return { statusCode: 200 };
   }
 
-  if (_args === 'febrero') {
+  if (body.message.text === 'febrero') {
     sendImage(body.message.chat.id, 'Este es el calendario del mes de ferbrero', 'febrero.png');
     return { statusCode: 200 };
   }
