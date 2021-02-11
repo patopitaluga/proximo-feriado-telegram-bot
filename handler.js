@@ -71,12 +71,12 @@ También me podés escribir una fecha en cualquier formato y te puedo decir el f
     return { statusCode: 200 };
   }
 
-  monthsLocale.forEach((_eachMonth) => {
-    if (body.message.text.toLowerCase() === _eachMonth) {
-      sendImage(body.message.chat.id, 'Este es el calendario de feriados del mes de ' + _eachMonth + ' de 2021', _eachMonth + '.png');
+  for (let m = 1; m <= 12; m++) {
+    if (body.message.text.toLowerCase() === monthsLocale[m]) {
+      sendImage(body.message.chat.id, 'Este es el calendario de feriados del mes de ' + monthsLocale[m] + ' de 2021', monthsLocale[m] + '.png');
       return { statusCode: 200 };
     }
-  });
+  }
 
   if (body.message.chat) {
     const responseText = proxferiado(body.message.text);
