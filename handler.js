@@ -73,7 +73,7 @@ También me podés escribir una fecha en cualquier formato y te puedo decir el f
 
   for (let m = 1; m <= 12; m++) {
     if (body.message.text.toLowerCase() === monthsLocale[m]) {
-      sendImage(body.message.chat.id, 'Este es el calendario de feriados del mes de ' + monthsLocale[m] + ' de 2021', monthsLocale[m] + '.png');
+      await sendImage(body.message.chat.id, 'Este es el calendario de feriados del mes de ' + monthsLocale[m] + ' de 2021', monthsLocale[m] + '.png');
       return { statusCode: 200 };
     }
   }
