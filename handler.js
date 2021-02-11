@@ -51,7 +51,6 @@ const sendImage = async(_chatId, _text, _filename) => {
   })
     .then((_response) => {
       console.log('Image uploaded');
-      console.log(_response.data);
     })
     .catch((_err) => {
       console.log('Error uploading image');
@@ -77,6 +76,8 @@ También me podés escribir una fecha en cualquier formato y te puedo decir el f
 
   if (body.message.text === 'febrero') {
     sendImage(body.message.chat.id, 'Este es el calendario del mes de ferbrero', 'febrero.png');
+    console.log('Image requested');
+    console.log(_response.data);
     return { statusCode: 200 };
   }
 
