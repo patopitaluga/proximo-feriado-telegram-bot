@@ -39,6 +39,7 @@ const sendImage = async(_chatId, _text, _filename) => {
   theFormData.append('chat_id', _chatId);
   theFormData.append('data', fs.createReadStream(path.resolve(__dirname, './images/' + _filename)));
 
+  console.log('Uploading image');
   return axios({
     method: 'post',
     url: `https://api.telegram.org/bot${ process.env.TELEGRAM_TOKEN }/sendImage`,
@@ -48,8 +49,13 @@ const sendImage = async(_chatId, _text, _filename) => {
       'file-name': _filename,
     },
   })
+    .then((_response) => {
+      console.log('Image uploaded');
+      console.log(_response.data);
+    });
     .catch((_err) => {
-      throw _err;
+      console.log('Error uploading image');
+      console.log(_err);
     });
 };
 
