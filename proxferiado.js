@@ -13,7 +13,7 @@ const weekDaysLocale = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'v
  * Próximo Feriado main function. Might be run in the serverless function handler or as a terminal client.
  *
  * @param {string} _args - (optional)
- * @return {string} -
+ * @return {object} -
  */
 const proxferiado = (_args) => {
   let txNextToWhichDate = 'próximo feriado es en';
@@ -98,6 +98,7 @@ if (
     argsText += space + process.argv[c];
     space = ' ';
   }
+
   const responseText = proxferiado(argsText);
   console.log(responseText);
 }

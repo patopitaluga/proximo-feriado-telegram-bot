@@ -1,6 +1,9 @@
 require('dotenv').config();
 const axios = require('axios');
+const FormData = require('form-data');
+const fs = require('fs');
 const proxferiado = require('./proxferiado');
+const path = require('path');
 
 /**
  *
@@ -8,7 +11,7 @@ const proxferiado = require('./proxferiado');
  * @param {string} _chatId -
  * @param {string} _text -
  */
-const sendToUser = async(_chatId, _text) => {
+const sendMessage = async(_chatId, _text) => {
   return axios({
     method: 'get',
     url: `https://api.telegram.org/bot${ process.env.TELEGRAM_TOKEN }/sendMessage`,
@@ -27,23 +30,55 @@ const sendToUser = async(_chatId, _text) => {
 /**
  *
  *
+ * @param {string} _chatId -
+ * @param {string} _text -
+ * @param {string} _filename -
+ */
+const sendImage = async(_chatId, _text, _filename) => {
+  const theFormData = new FormData();
+  theFormData.append('chat_id', _chatId);
+  theFormData.append('data', fs.createReadStream(path.resolve(__dirname, './images/' + _filename)));
+
+  return axios({
+    method: 'post',
+    url: `https://api.telegram.org/bot${ process.env.TELEGRAM_TOKEN }/sendImage`,
+    data: theFormData,
+    headers: {
+      'Content-Type': 'multipart/form-data; boundary=' + theFormData._boundary,
+      'file-name': _filename,
+    },
+  })
+    .catch((_err) => {
+      throw _err;
+    });
+};
+
+/**
+ *
+ *
  * @param {string} _event -
  */
 module.exports.proxferiadobot = async(_event) => {
   const body = JSON.parse(_event.body);
 
   if (body.message.text === '/start') {
-    await sendToUser(body.message.chat.id, `Hola, soy el bot que dice el próximo feriado. Cuando digas cualquier texto te voy a contestar con información sobre el próximo feriado en Argentina para el año 2021
+    await sendMessage(body.message.chat.id, `Hola, soy el bot que dice el próximo feriado. Cuando digas cualquier texto te voy a contestar con información sobre el próximo feriado en Argentina para el año 2021
 
 También me podés escribir una fecha en cualquier formato y te puedo decir el feriado siguiente a esa fecha.
 `);
     return { statusCode: 200 };
   }
-  const responseText = proxferiado(body.message.text);
 
-  if (body.message.chat)
-    await sendToUser(body.message.chat.id, responseText);
-  else
-    console.log(responseText); // testing or using cli
-  return { statusCode: 200 };
+  if (_args === 'febrero') {
+    sendImage(body.message.chat.id, 'Este es el calendario del mes de ferbrero', 'febrero.png');
+    return { statusCode: 200 };
+  }
+
+  if (body.message.chat) {
+    const responseText = proxferiado(body.message.text);
+    await sendMessage(body.message.chat.id, responseText);
+    return { statusCode: 200 };
+  }
+
+  console.log(response.text); // testing or using cli
 };
