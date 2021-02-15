@@ -4,6 +4,7 @@ const timezone = require('dayjs/plugin/timezone');
 const utc = require('dayjs/plugin/utc');
 dayjs.extend(utc);
 dayjs.extend(timezone);
+dayjs.tz.setDefault('America/Argentina/Buenos_Aires');
 const path = require('path');
 
 const monthsLocale = ['', 'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
@@ -18,7 +19,7 @@ const weekDaysLocale = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'v
 const proxferiado = (_args) => {
   let txNextToWhichDate = 'próximo feriado es en';
   let txLater = '';
-  let theDate = dayjs();
+  let theDate = dayjs().startOf('day');
   if (_args && _args.length === 10) {
     if ( // YYYY-MM-DD || YYYY/MM/DD
       !isNaN(_args.substr(0, 4)) &&
@@ -56,14 +57,21 @@ const proxferiado = (_args) => {
     }
   }
 
-  const theDateInArgentina = theDate.tz('America/Argentina/Buenos_Aires'); // get the date inside the function to make it current every time.
   let responseText = '';
   for (i = 0; i < feriados.length; i++) {
+    if (feriados[i].date === theDate.format('YYYY-MM-DD')) {
+      if (txLater === '')
+        responseText = 'Hoy es feriado, ' + theDate.format('DD/MM') + ' "' + feriados[i].name + '". ';
+      else
+        responseText = 'El ' + theDate.format('DD/MM') + ' es feriado, "' + feriados[i].name + '". ';
+    }
+  }
+  for (i = 0; i < feriados.length; i++) {
     const thisFeriado = feriados[i];
-    const thisFeriadoDate = dayjs(thisFeriado.date); // TODO: this is the date in UTC 0 not in Argentina
-    if (thisFeriadoDate.isAfter(theDateInArgentina)) {
+    let thisFeriadoDate = dayjs(thisFeriado.date);
+    if (thisFeriadoDate.isAfter(theDate)) {
       const txHowManyDaysTo = thisFeriadoDate.diff(theDate, 'days');
-      responseText = `El ${ txNextToWhichDate } *${ txHowManyDaysTo } día${ ((txHowManyDaysTo > 1) ? 's' : '') }*${ txLater }. El `;
+      responseText += `El ${ txNextToWhichDate } *${ txHowManyDaysTo } día${ ((txHowManyDaysTo > 1) ? 's' : '') }*${ txLater }. El `;
       responseText += '*' +
         weekDaysLocale[thisFeriadoDate.day()] + ' ' + thisFeriadoDate.format('D') +
         ' de ' + monthsLocale[Number(thisFeriadoDate.format('M'))] +'* "' + thisFeriado.name + '".';
@@ -78,6 +86,7 @@ const proxferiado = (_args) => {
         '&dates=' + thisFeriadoDate.format('YYYYMMDD') + '%2F' +
         thisFeriadoDate.add(1, 'days').format('YYYYMMDD');
 
+      responseText = responseText.replace('en *1 día*', '*mañana*');
       // console.log(responseText);
       return responseText;
       break;
