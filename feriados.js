@@ -51,7 +51,6 @@ module.exports = [
     name: 'Día de la Revolución de Mayo',
     type: 'inamovible',
     weekday: 'martes',
-    nextTo: '4 días no laborables, junto con el sábado 22, el domingo 23 y el lunes 24',
   },
   {
     date: '2021-06-20',
