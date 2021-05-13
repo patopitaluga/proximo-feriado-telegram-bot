@@ -47,12 +47,6 @@ module.exports = [
     weekday: 'sábado',
   },
   {
-    date: '2021-05-24',
-    name: 'Feriado con fines turísticos',
-    weekday: 'lunes',
-    nextTo: '4 días no laborables, junto con el sábado 22, el domingo 23 y el martes 25',
-  },
-  {
     date: '2021-05-25',
     name: 'Día de la Revolución de Mayo',
     type: 'inamovible',
