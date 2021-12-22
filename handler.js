@@ -64,7 +64,7 @@ module.exports.proxferiadobot = async(_event) => {
   const body = JSON.parse(_event.body);
 
   if (body.message.text === '/start') {
-    await sendMessage(body.message.chat.id, `Hola, soy el bot que dice el próximo feriado. Cuando digas cualquier texto te voy a contestar con información sobre el próximo feriado en Argentina para el año 2021
+    await sendMessage(body.message.chat.id, `Hola, soy el bot que dice el próximo feriado. Cuando digas cualquier texto te voy a contestar con información sobre el próximo feriado en Argentina
 
 También me podés escribir una fecha en cualquier formato y te puedo decir el feriado siguiente a esa fecha.
 `);
@@ -73,7 +73,7 @@ También me podés escribir una fecha en cualquier formato y te puedo decir el f
 
   for (let m = 1; m <= 12; m++) {
     if (body.message.text.toLowerCase() === monthsLocale[m]) {
-      await sendImage(body.message.chat.id, 'Este es el calendario de feriados del mes de ' + monthsLocale[m] + ' de 2021', monthsLocale[m] + '.png');
+      await sendImage(body.message.chat.id, 'Este es el calendario de feriados del mes de ' + monthsLocale[m] + ' de 2022', '2022/' + monthsLocale[m] + '.png');
       return { statusCode: 200 };
     }
   }

@@ -1,4 +1,20 @@
-const feriados = require('./feriados');
+const feriados2021 = require('./feriados-2021');
+let feriados2022 = require('./feriados-2022');
+// fix for december 2021
+feriados2022.unshift({
+  date: '2021-12-25',
+  name: 'Navidad',
+  type: 'inamovible',
+  weekday: 'sábado',
+});
+feriados2022.unshift({
+  date: '2021-12-08',
+  name: 'Inmaculada Concepción de María',
+  type: 'inamovible',
+  weekday: 'miércoles',
+});
+// end fix
+
 const dayjs = require('dayjs');
 const timezone = require('dayjs/plugin/timezone');
 const utc = require('dayjs/plugin/utc');
@@ -51,23 +67,23 @@ const proxferiado = (_args) => {
         if (dateParts[2] === monthsLocale[m]) {
           txNextToWhichDate = 'feriado más próximo al ' + dateParts[0] + ' de ' + monthsLocale[m] + ' es'
           txLater = ' después';
-          theDate = dayjs('2021-' + ('0' + m).slice(-2) + '-' + ('0' + dateParts[0]).slice(-2));
+          theDate = dayjs('2022-' + ('0' + m).slice(-2) + '-' + ('0' + dateParts[0]).slice(-2));
         }
       }
     }
   }
 
   let responseText = '';
-  for (i = 0; i < feriados.length; i++) {
-    if (feriados[i].date === theDate.format('YYYY-MM-DD')) {
+  for (i = 0; i < feriados2022.length; i++) {
+    if (feriados2022[i].date === theDate.format('YYYY-MM-DD')) {
       if (txLater === '')
-        responseText = 'Hoy es feriado, ' + theDate.format('DD/MM') + ' "' + feriados[i].name + '". ';
+        responseText = 'Hoy es feriado, ' + theDate.format('DD/MM') + ' "' + feriados2022[i].name + '". ';
       else
-        responseText = 'El ' + theDate.format('DD/MM') + ' es feriado, "' + feriados[i].name + '". ';
+        responseText = 'El ' + theDate.format('DD/MM') + ' es feriado, "' + feriados2022[i].name + '". ';
     }
   }
-  for (i = 0; i < feriados.length; i++) {
-    const thisFeriado = feriados[i];
+  for (i = 0; i < feriados2022.length; i++) {
+    const thisFeriado = feriados2022[i];
     let thisFeriadoDate = dayjs(thisFeriado.date);
     if (thisFeriadoDate.isAfter(theDate)) {
       const txHowManyDaysTo = thisFeriadoDate.diff(theDate, 'days');
