@@ -10,14 +10,14 @@ module.exports = [
     name: 'Feriado de carnaval',
     type: 'inamovible',
     weekday: 'lunes',
-    nextTo: '4 días no laborables, junto con el sábado 26, el domingo 27 y el martes 1 de marzo',
+    nextTo: '4 días no laborables, desde el sábado 26 de febrero hasta el martes 1 de marzo',
   },
   {
     date: '2022-03-01',
     name: 'Feriado de carnaval',
     type: 'inamovible',
     weekday: 'martes',
-    nextTo: '4 días no laborables desde el sábado 26 de febrero hasta el martes 1 de marzo',
+    nextTo: '4 días no laborables, desde el sábado 26 de febrero hasta el martes 1 de marzo',
   },
   {
     date: '2022-03-24',
