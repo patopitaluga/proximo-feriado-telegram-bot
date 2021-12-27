@@ -94,11 +94,11 @@ También me podés escribir una fecha y te puedo decir el feriado siguiente a es
   }
 
   if (
-    body.message.text === 'hoy' ||
-    body.message.text === 'próximo' ||
-    body.message.text === 'proximo' ||
-    body.message.text === 'próximo feriado' ||
-    body.message.text === 'proximo feriado'
+    body.message.text.toLowerCase() === 'hoy' ||
+    body.message.text.toLowerCase() === 'próximo' ||
+    body.message.text.toLowerCase() === 'proximo' ||
+    body.message.text.toLowerCase() === 'próximo feriado' ||
+    body.message.text.toLowerCase() === 'proximo feriado'
   ) {
     const result = getTheHolyDay();
     await sendMessage(body.message.chat.id,
@@ -157,6 +157,11 @@ También me podés escribir una fecha y te puedo decir el feriado siguiente a es
     return { statusCode: 200, };
   }
 
-  await sendMessage(body.message.chat.id, 'Si querés saber cuál es el próximo feriado desde hoy escribí la palabra "próximo", si no, escribí la fecha de la que querés información.');
+  if (body.message.text.toLowerCase() === 'ayuda') {
+    await sendMessage(body.message.chat.id, 'Si querés saber cuál es el próximo feriado desde hoy escribí la palabra "próximo", si no, escribí la fecha de la que querés información o el nombre del mes. Para otros comandos escribí "ayuda".');
+    return { statusCode: 200, };
+  }
+
+  await sendMessage(body.message.chat.id, 'Si querés saber cuál es el próximo feriado desde hoy escribí la palabra "próximo", si no, escribí la fecha de la que querés información o el nombre del mes. Para otros comandos escribí "ayuda".');
   return { statusCode: 200, };
 };
