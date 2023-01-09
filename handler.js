@@ -86,10 +86,12 @@ También me podés escribir una fecha y te puedo decir el feriado siguiente a es
     return { statusCode: 200, };
   }
 
+  const currentYear = 2023;
+
   // if the text is a specific month
   const matchMonth = monthsLocale.find((_eachMonth) => _eachMonth === body.message.text.toLowerCase());
   if (matchMonth) {
-    await sendImage(body.message.chat.id, 'Este es el calendario de feriados del mes de ' + matchMonth + ' de 2022', '2022/' + matchMonth + '.png');
+    await sendImage(body.message.chat.id, `Este es el calendario de feriados del mes de ${matchMonth} de ${currentYear}`, `${currentYear}/${matchMonth}.png`);
     return { statusCode: 200, };
   }
 
@@ -112,7 +114,7 @@ También me podés escribir una fecha y te puedo decir el feriado siguiente a es
 
   const words = body.message.text.split(' ');
   if (isANumber(words[0]) && words[1] === 'de' && monthsLocale.some((_eachMonth) => _eachMonth === words[2].toLowerCase())) {
-    const result = getTheHolyDay('2022-' + ('0' + monthsLocale.indexOf(words[2].toLowerCase())).slice(-2) + '-' + ('0' + words[0]).slice(-2));
+    const result = getTheHolyDay(currentYear + '-' + ('0' + monthsLocale.indexOf(words[2].toLowerCase())).slice(-2) + '-' + ('0' + words[0]).slice(-2));
     await sendMessage(body.message.chat.id,
       ((result.thatDayIsHoliday) ?
       'El ' + result.dateAsText + ' es feriado. ' + result.description :
