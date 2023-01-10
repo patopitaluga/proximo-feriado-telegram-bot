@@ -1,7 +1,30 @@
-require('dotenv').config(); // to get TELEGRAM_TOKEN from .env file
+require('dotenv').config();
 const axios = require('axios'); // to send the message / image to telegram api
 const FormData = require('form-data'); // to build the object to send image
+const { Sequelize } = require('sequelize');
+
 const getTheHolyDay = require('./get-the-holiday');
+
+let sequelize = null;
+const loadSequelize = async () => {
+  const sequelize = new Sequelize(process.env.DB_DATABASE, process.env.DB_USER, process.env.DB_PASSWORD, {
+    host: process.env.DB_HOST,
+    port: 3306,
+    dialect: 'mysql',
+    dialectOptions: {
+      ssl: 'Amazon RDS',
+    },
+    pool: {
+      max: 2,
+      min: 0,
+      idle: 0,
+      acquire: 3000,
+      evict: 1000,
+    }
+  });
+  await sequelize.authenticate();
+  return sequelize;
+};
 
 const monthsLocale = ['', 'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
 
@@ -76,94 +99,111 @@ const sendImage = async(_chatId, _text, _filename) => {
  * @param {string} _event -
  */
 module.exports.proxferiadobot = async(_event) => {
-  const body = JSON.parse(_event.body);
+  if (!sequelize) {
+    sequelize = await loadSequelize();
+  } else {
+    // restart connection pool to ensure connections are not re-used across invocations
+    sequelize.connectionManager.initPools();
 
-  if (body.message.text === '/start') {
-    await sendMessage(body.message.chat.id, `Hola, soy el bot que dice el próximo feriado. Cuando escribas la palabra "próximo" te voy a contestar con información sobre el próximo feriado en Argentina
-
-También me podés escribir una fecha y te puedo decir el feriado siguiente a esa fecha. Para otros comandos escribí ayuda.
-`);
-    return { statusCode: 200, };
+    // restore `getConnection()` if it has been overwritten by `close()`
+    if (sequelize.connectionManager.hasOwnProperty('getConnection')) {
+      delete sequelize.connectionManager.getConnection;
+    }
   }
+  try {
+    const body = JSON.parse(_event.body);
 
-  const currentYear = 2023;
+    if (body.message.text === '/start') {
+      await sendMessage(body.message.chat.id, `Hola, soy el bot que dice el próximo feriado. Cuando escribas la palabra "próximo" te voy a contestar con información sobre el próximo feriado en Argentina
 
-  // if the text is a specific month
-  const matchMonth = monthsLocale.find((_eachMonth) => _eachMonth === body.message.text.toLowerCase());
-  if (matchMonth) {
-    await sendImage(body.message.chat.id, `Este es el calendario de feriados del mes de ${matchMonth} de ${currentYear}`, `${currentYear}/${matchMonth}.png`);
-    return { statusCode: 200, };
-  }
+  También me podés escribir una fecha y te puedo decir el feriado siguiente a esa fecha. Para otros comandos escribí ayuda.
+  `);
+      return { statusCode: 200, };
+    }
 
-  if (
-    body.message.text.toLowerCase() === 'hoy' ||
-    body.message.text.toLowerCase() === 'próximo' ||
-    body.message.text.toLowerCase() === 'proximo' ||
-    body.message.text.toLowerCase() === 'próximo feriado' ||
-    body.message.text.toLowerCase() === 'proximo feriado'
-  ) {
-    const result = getTheHolyDay();
-    await sendMessage(body.message.chat.id,
-      ((result.thatDayIsHoliday) ?
-      'Hoy es feriado, *' + result.dateAsText + '* "' + result.description + '". ' :
-      `El próximo feriado es en *${ result.daysInTheFuture } día${ ((result.daysInTheFuture > 1) ? 's' : '') }*. ${ result.description }`
-      )
-    );
-    return { statusCode: 200, };
-  }
+    const currentYear = 2023;
 
-  const words = body.message.text.split(' ');
-  if (isANumber(words[0]) && words[1] === 'de' && monthsLocale.some((_eachMonth) => _eachMonth === words[2].toLowerCase())) {
-    const result = getTheHolyDay(currentYear + '-' + ('0' + monthsLocale.indexOf(words[2].toLowerCase())).slice(-2) + '-' + ('0' + words[0]).slice(-2));
-    await sendMessage(body.message.chat.id,
-      ((result.thatDayIsHoliday) ?
-      'El ' + result.dateAsText + ' es feriado. ' + result.description :
-      `El feriado más próximo al ${ result.dateAsText } es *${ result.daysInTheFuture } día${ ((result.daysInTheFuture > 1) ? 's' : '') }* depués. ${ result.description }`
-      )
-    );
-    return { statusCode: 200, };
-  }
+    // if the text is a specific month
+    const matchMonth = monthsLocale.find((_eachMonth) => _eachMonth === body.message.text.toLowerCase());
+    if (matchMonth) {
+      await sendImage(body.message.chat.id, `Este es el calendario de feriados del mes de ${matchMonth} de ${currentYear}`, `${currentYear}/${matchMonth}.png`);
+      return { statusCode: 200, };
+    }
 
-  if ( // YYYY-MM-DD || YYYY/MM/DD
-    body.message.text.length === 10 &&
-    isANumber(body.message.text.substr(0, 4)) &&
-    (body.message.text.substr(4, 1) === '-' || body.message.text.substr(4, 1) === '/') &&
-    isANumber(body.message.text.substr(5, 2)) &&
-    (body.message.text.substr(7, 1) === '-' || body.message.text.substr(7, 1) === '/') &&
-    isANumber(body.message.text.substr(10, 2))
-  ) {
-    const result = getTheHolyDay(body.message.text.replace(/\//g, '-'));
-    await sendMessage(body.message.chat.id,
-      ((result.thatDayIsHoliday) ?
-      'El ' + result.dateAsText + ' es feriado. ' + result.description :
-      `El feriado más próximo al ${ result.dateAsText } es *${ result.daysInTheFuture } día${ ((result.daysInTheFuture > 1) ? 's' : '') }* depués. ${ result.description }`
-      )
-    );
-    return { statusCode: 200, };
-  }
-  if ( // DD-MM-YYYY || DD/MM/YYYY
-    body.message.text.length === 10 &&
-    isANumber(body.message.text.substr(0, 2)) &&
-    (body.message.text.substr(2, 1) === '-' || body.message.text.substr(2, 1) === '/')  &&
-    isANumber(body.message.text.substr(3, 2)) &&
-    (body.message.text.substr(5, 1) === '-' || body.message.text.substr(5, 1) === '/') &&
-    isANumber(body.message.text.substr(6, 4))
-  ) {
-    const result = getTheHolyDay(body.message.text.substr(6, 4) + '-' + body.message.text.substr(3, 2) + '-' + body.message.text.substr(0, 2));
-    await sendMessage(body.message.chat.id,
-      ((result.thatDayIsHoliday) ?
-      'El ' + result.dateAsText + ' es feriado. ' + result.description :
-      `El feriado más próximo al ${ result.dateAsText } es *${ result.daysInTheFuture } día${ ((result.daysInTheFuture > 1) ? 's' : '') }* depués. ${ result.description }`
-      )
-    );
-    return { statusCode: 200, };
-  }
+    if (
+      body.message.text.toLowerCase() === 'hoy' ||
+      body.message.text.toLowerCase() === 'próximo' ||
+      body.message.text.toLowerCase() === 'proximo' ||
+      body.message.text.toLowerCase() === 'próximo feriado' ||
+      body.message.text.toLowerCase() === 'proximo feriado'
+    ) {
+      const result = getTheHolyDay();
+      await sendMessage(body.message.chat.id,
+        ((result.thatDayIsHoliday) ?
+        'Hoy es feriado, *' + result.dateAsText + '* "' + result.description + '". ' :
+        `El próximo feriado es en *${ result.daysInTheFuture } día${ ((result.daysInTheFuture > 1) ? 's' : '') }*. ${ result.description }`
+        )
+      );
+      return { statusCode: 200, };
+    }
 
-  if (body.message.text.toLowerCase() === 'ayuda') {
+    const words = body.message.text.split(' ');
+    if (isANumber(words[0]) && words[1] === 'de' && monthsLocale.some((_eachMonth) => _eachMonth === words[2].toLowerCase())) {
+      const result = getTheHolyDay(currentYear + '-' + ('0' + monthsLocale.indexOf(words[2].toLowerCase())).slice(-2) + '-' + ('0' + words[0]).slice(-2));
+      await sendMessage(body.message.chat.id,
+        ((result.thatDayIsHoliday) ?
+        'El ' + result.dateAsText + ' es feriado. ' + result.description :
+        `El feriado más próximo al ${ result.dateAsText } es *${ result.daysInTheFuture } día${ ((result.daysInTheFuture > 1) ? 's' : '') }* depués. ${ result.description }`
+        )
+      );
+      return { statusCode: 200, };
+    }
+
+    if ( // YYYY-MM-DD || YYYY/MM/DD
+      body.message.text.length === 10 &&
+      isANumber(body.message.text.substr(0, 4)) &&
+      (body.message.text.substr(4, 1) === '-' || body.message.text.substr(4, 1) === '/') &&
+      isANumber(body.message.text.substr(5, 2)) &&
+      (body.message.text.substr(7, 1) === '-' || body.message.text.substr(7, 1) === '/') &&
+      isANumber(body.message.text.substr(10, 2))
+    ) {
+      const result = getTheHolyDay(body.message.text.replace(/\//g, '-'));
+      await sendMessage(body.message.chat.id,
+        ((result.thatDayIsHoliday) ?
+        'El ' + result.dateAsText + ' es feriado. ' + result.description :
+        `El feriado más próximo al ${ result.dateAsText } es *${ result.daysInTheFuture } día${ ((result.daysInTheFuture > 1) ? 's' : '') }* depués. ${ result.description }`
+        )
+      );
+      return { statusCode: 200, };
+    }
+    if ( // DD-MM-YYYY || DD/MM/YYYY
+      body.message.text.length === 10 &&
+      isANumber(body.message.text.substr(0, 2)) &&
+      (body.message.text.substr(2, 1) === '-' || body.message.text.substr(2, 1) === '/')  &&
+      isANumber(body.message.text.substr(3, 2)) &&
+      (body.message.text.substr(5, 1) === '-' || body.message.text.substr(5, 1) === '/') &&
+      isANumber(body.message.text.substr(6, 4))
+    ) {
+      const result = getTheHolyDay(body.message.text.substr(6, 4) + '-' + body.message.text.substr(3, 2) + '-' + body.message.text.substr(0, 2));
+      await sendMessage(body.message.chat.id,
+        ((result.thatDayIsHoliday) ?
+        'El ' + result.dateAsText + ' es feriado. ' + result.description :
+        `El feriado más próximo al ${ result.dateAsText } es *${ result.daysInTheFuture } día${ ((result.daysInTheFuture > 1) ? 's' : '') }* depués. ${ result.description }`
+        )
+      );
+      return { statusCode: 200, };
+    }
+
+    if (body.message.text.toLowerCase() === 'ayuda') {
+      await sendMessage(body.message.chat.id, 'Si querés saber cuál es el próximo feriado desde hoy escribí la palabra "próximo", si no, escribí la fecha de la que querés información o el nombre del mes. Para otros comandos escribí "ayuda".');
+      return { statusCode: 200, };
+    }
+
     await sendMessage(body.message.chat.id, 'Si querés saber cuál es el próximo feriado desde hoy escribí la palabra "próximo", si no, escribí la fecha de la que querés información o el nombre del mes. Para otros comandos escribí "ayuda".');
     return { statusCode: 200, };
+  } finally {
+    // close any opened connections during the invocation
+    // this will wait for any in-progress queries to finish before closing the connections
+    await sequelize.connectionManager.close();
   }
-
-  await sendMessage(body.message.chat.id, 'Si querés saber cuál es el próximo feriado desde hoy escribí la palabra "próximo", si no, escribí la fecha de la que querés información o el nombre del mes. Para otros comandos escribí "ayuda".');
-  return { statusCode: 200, };
 };

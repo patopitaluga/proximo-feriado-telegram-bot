@@ -9,6 +9,8 @@
     "axios": "^0.21.1",
     "dayjs": "^1.10.4",
     "dotenv": "^8.2.0",
-    "form-data": "^3.0.0"
+    "form-data": "^3.0.0",
+    "mysql2": "^2.3.3",
+    "sequelize": "^6.28.0"
   }
 }
