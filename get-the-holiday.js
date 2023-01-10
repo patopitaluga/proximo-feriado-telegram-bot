@@ -1,4 +1,4 @@
-const feriados2022 = require('./feriados-2022');
+const holydaysCurrentYear = require('./feriados-2023');
 
 const dayjs = require('dayjs');
 const timezone = require('dayjs/plugin/timezone');
@@ -21,11 +21,11 @@ module.exports = (_theDateAsString) => {
 
   let thatDayIsHoliday = false;
   let responseText = '';
-  for (i = 0; i < feriados2022.length; i++) {
-    if (feriados2022[i].date === theDate.format('YYYY-MM-DD'))
+  for (i = 0; i < holydaysCurrentYear.length; i++) {
+    if (holydaysCurrentYear[i].date === theDate.format('YYYY-MM-DD'))
       thatDayIsHoliday = true;
   }
-  const nextFeriado = feriados2022.find((_) => _.date === theDate.format('YYYY-MM-DD') || dayjs(_.date).isAfter(theDate));
+  const nextFeriado = holydaysCurrentYear.find((_) => _.date === theDate.format('YYYY-MM-DD') || dayjs(_.date).isAfter(theDate));
   if (nextFeriado) {
     const theFeriadoDate = dayjs(nextFeriado.date);
     const txHowManyDaysTo = theFeriadoDate.diff(theDate, 'days');

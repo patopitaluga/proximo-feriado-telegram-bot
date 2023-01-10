@@ -35,5 +35,5 @@ node proxferiado
 
 To get the next holiday for specific day
 ```
-node proxferiado 2022-02-05
+node proxferiado 2023-02-05
 ```
